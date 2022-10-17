@@ -3,6 +3,18 @@
 - name: Reset Kubernetes component
   shell: "kubeadm reset --force --cri-socket=unix:///var/run/{{ container_runtime }}/{{ container_runtime }}.sock"
   register: reset_cluster
+  
+- name: remove config file
+  file:
+    path: /etc/containerd/config.toml
+    state: absent
+  register: reset_cluster
+    
+- name: restart containerd service
+  service:
+    name: containerd
+    state: restarted
+  register: reset_cluster
 
 - name: Init Kubernetes cluster
   when: reset_cluster is succeeded
